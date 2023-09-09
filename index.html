@@ -1,55 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Slides Viewer</title>
+    <title>Google Slides API</title>
+    <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
-    <div id="slide-container"></div>
+    <div id="presentation-container"></div>
+    <button onclick="previousSlide()">Slide Anterior</button>
+    <button onclick="nextSlide()">Próximo Slide</button>
 
-    <script src="https://apis.google.com/js/api.js"></script>
     <script>
-        gapi.load('client', initClient);
+        // Chave da API do Google Slides
+        var API_KEY = 'AIzaSyDXxy5eAzOaeVNojHpAHiX3l5jpSAY03Nk';
 
-        function initClient() {
+        // ID da apresentação do Google Slides
+        var PRESENTATION_ID = '1yNQ143OjKI2zjHTxbppIAvLn3--ykIRywzsrFCFkuAU';
+
+        // Inicializar a API do Google Slides
+        gapi.load('client', function() {
             gapi.client.init({
-                apiKey: 'AIzaSyDXxy5eAzOaeVNojHpAHiX3l5jpSAY03Nk',
-                discoveryDocs: ["https://slides.googleapis.com/$discovery/rest?version=v1"],
-            }).then(() => {
-                loadSlides();
-            });
-        }
-
-        function loadSlides() {
-            gapi.client.slides.presentations.get({
-                presentationId: '1yNQ143OjKI2zjHTxbppIAvLn3--ykIRywzsrFCFkuAU',
-            }).then((response) => {
-                const slides = response.result.slides;
-                const slideContainer = document.getElementById('slide-container');
-
-                slides.forEach((slide, index) => {
-                    const imgUrl = slide.thumbnailUrl;
-                    const slideImg = document.createElement('img');
-                    slideImg.src = imgUrl;
-
-                    // Você pode personalizar o tamanho dos slides aqui
-                    // slideImg.style.width = '800px';
-                    // slideImg.style.height = '600px';
-
-                    slideContainer.appendChild(slideImg);
-
-                    // Avance para o próximo slide a cada 5 segundos (ajuste conforme necessário)
-                    setTimeout(() => {
-                        slideImg.style.display = 'none';
-                        if (index + 1 < slides.length) {
-                            slideContainer.childNodes[index + 1].style.display = 'block';
-                        } else {
-                            slideContainer.childNodes[0].style.display = 'block';
-                        }
-                    }, 5000 * (index + 1));
+                apiKey: API_KEY,
+            }).then(function() {
+                // Carregar a apresentação
+                return gapi.client.slides.presentations.get({
+                    presentationId: PRESENTATION_ID
                 });
+            }).then(function(response) {
+                // Obter os slides da apresentação
+                var slides = response.result.slides;
+
+                // Inserir o primeiro slide na página
+                var presentationContainer = document.getElementById('presentation-container');
+                presentationContainer.innerHTML = '<iframe src="' + slides[0].slideProperties.notesPage.pageElements[0].shape.text.textElements[0].textRun.content + '"></iframe>';
+
+                // Variável para rastrear o slide atual
+                var currentSlideIndex = 0;
+
+                // Função para avançar para o próximo slide
+                function nextSlide() {
+                    if (currentSlideIndex < slides.length - 1) {
+                        currentSlideIndex++;
+                        presentationContainer.innerHTML = '<iframe src="' + slides[currentSlideIndex].slideProperties.notesPage.pageElements[0].shape.text.textElements[0].textRun.content + '"></iframe>';
+                    }
+                }
+
+                // Função para retroceder para o slide anterior
+                function previousSlide() {
+                    if (currentSlideIndex > 0) {
+                        currentSlideIndex--;
+                        presentationContainer.innerHTML = '<iframe src="' + slides[currentSlideIndex].slideProperties.notesPage.pageElements[0].shape.text.textElements[0].textRun.content + '"></iframe>';
+                    }
+                }
+
+                // Exibir os botões de controle de slide
+                var previousButton = document.querySelector('button[onclick="previousSlide()"]');
+                var nextButton = document.querySelector('button[onclick="nextSlide()"]');
+                previousButton.style.display = 'block';
+                nextButton.style.display = 'block';
             });
+        });
+
+        // Função para carregar o SDK da API do Google
+        function loadGoogleApi() {
+            gapi.load('client', initGoogleAPI);
         }
     </script>
 </body>
