@@ -11,10 +11,10 @@
 
     <script>
         // Chave da API do Google Slides
-        var API_KEY = 'AIzaSyDXxy5eAzOaeVNojHpAHiX3l5jpSAY03Nk';
+        var API_KEY = 'SUA_CHAVE_DA_API_DO_GOOGLE';
 
         // ID da apresentação do Google Slides
-        var PRESENTATION_ID = '1yNQ143OjKI2zjHTxbppIAvLn3--ykIRywzsrFCFkuAU';
+        var PRESENTATION_ID = 'ID_DA_APRESENTACAO';
 
         // Inicializar a API do Google Slides
         gapi.load('client', function() {
@@ -57,6 +57,8 @@
                 var nextButton = document.querySelector('button[onclick="nextSlide()"]');
                 previousButton.style.display = 'block';
                 nextButton.style.display = 'block';
+            }).catch(function(error) {
+                console.error('Erro na inicialização da API: ', error);
             });
         });
 
