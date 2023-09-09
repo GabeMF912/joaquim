@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Slides Viewer</title>
+</head>
+<body>
+    <div id="slide-container"></div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        gapi.load('client', initClient);
+
+        function initClient() {
+            gapi.client.init({
+                apiKey: 'AIzaSyBMB1ks8wT-Pe9INTdxE1fSTi-Zze8UHTg',
+                discoveryDocs: ["https://slides.googleapis.com/$discovery/rest?version=v1"],
+            }).then(() => {
+                loadSlides();
+            });
+        }
+
+        function loadSlides() {
+            gapi.client.slides.presentations.get({
+                presentationId: '12kbNnfv9owt2AnDw6Fa6WV9CGF62HAlFo3ldefdu0Kk',
+            }).then((response) => {
+                const slides = response.result.slides;
+                const slideContainer = document.getElementById('slide-container');
+
+                slides.forEach((slide, index) => {
+                    const imgUrl = slide.thumbnailUrl;
+                    const slideImg = document.createElement('img');
+                    slideImg.src = imgUrl;
+
+                    // Você pode personalizar o tamanho dos slides aqui
+                    // slideImg.style.width = '800px';
+                    // slideImg.style.height = '600px';
+
+                    slideContainer.appendChild(slideImg);
+
+                    // Avance para o próximo slide a cada 5 segundos (ajuste conforme necessário)
+                    setTimeout(() => {
+                        slideImg.style.display = 'none';
+                        if (index + 1 < slides.length) {
+                            slideContainer.childNodes[index + 1].style.display = 'block';
+                        } else {
+                            slideContainer.childNodes[0].style.display = 'block';
+                        }
+                    }, 5000 * (index + 1));
+                });
+            });
+        }
+    </script>
+</body>
+</html>
