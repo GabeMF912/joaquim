@@ -1,71 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Google Slides API</title>
-    <script src="https://apis.google.com/js/api.js"></script>
+    <meta charset="UTF-8">
+    <title>Visualização de Modelo glTF</title>
+    <!-- Inclua o Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-    <div id="presentation-container"></div>
-    <button onclick="previousSlide()">Slide Anterior</button>
-    <button onclick="nextSlide()">Próximo Slide</button>
-
     <script>
-        // Chave da API do Google Slides
-        var API_KEY = 'AIzaSyDXxy5eAzOaeVNojHpAHiX3l5jpSAY03Nk';
+        // Crie uma cena Three.js
+        var scene = new THREE.Scene();
 
-        // ID da apresentação do Google Slides
-        var PRESENTATION_ID = '1yNQ143OjKI2zjHTxbppIAvLn3--ykIRywzsrFCFkuAU';
+        // Crie uma câmera
+        var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
 
-        // Inicializar a API do Google Slides
-        gapi.load('client', function() {
-            gapi.client.init({
-                apiKey: API_KEY,
-            }).then(function() {
-                // Carregar a apresentação
-                return gapi.client.slides.presentations.get({
-                    presentationId: PRESENTATION_ID
-                });
-            }).then(function(response) {
-                // Obter os slides da apresentação
-                var slides = response.result.slides;
+        // Crie um renderizador
+        var renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-                // Inserir o primeiro slide na página
-                var presentationContainer = document.getElementById('presentation-container');
-                presentationContainer.innerHTML = '<iframe src="' + slides[0].slideProperties.notesPage.pageElements[0].shape.text.textElements[0].textRun.content + '"></iframe>';
-
-                // Variável para rastrear o slide atual
-                var currentSlideIndex = 0;
-
-                // Função para avançar para o próximo slide
-                function nextSlide() {
-                    if (currentSlideIndex < slides.length - 1) {
-                        currentSlideIndex++;
-                        presentationContainer.innerHTML = '<iframe src="' + slides[currentSlideIndex].slideProperties.notesPage.pageElements[0].shape.text.textElements[0].textRun.content + '"></iframe>';
-                    }
-                }
-
-                // Função para retroceder para o slide anterior
-                function previousSlide() {
-                    if (currentSlideIndex > 0) {
-                        currentSlideIndex--;
-                        presentationContainer.innerHTML = '<iframe src="' + slides[currentSlideIndex].slideProperties.notesPage.pageElements[0].shape.text.textElements[0].textRun.content + '"></iframe>';
-                    }
-                }
-
-                // Exibir os botões de controle de slide
-                var previousButton = document.querySelector('button[onclick="previousSlide()"]');
-                var nextButton = document.querySelector('button[onclick="nextSlide()"]');
-                previousButton.style.display = 'block';
-                nextButton.style.display = 'block';
-            }).catch(function(error) {
-                console.error('Erro na inicialização da API: ', error);
-            });
+        // Carregue o modelo glTF
+        var loader = new THREE.GLTFLoader();
+        loader.load('seu_modelo.gltf', function (gltf) {
+            var model = gltf.scene;
+            scene.add(model);
         });
 
-        // Função para carregar o SDK da API do Google
-        function loadGoogleApi() {
-            gapi.load('client', initGoogleAPI);
-        }
+        // Adicione uma luz ambiente
+        var ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+
+        // Adicione uma luz direcional
+        var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+
+        // Função de animação
+        var animate = function () {
+            requestAnimationFrame(animate);
+
+            // Gire o modelo, se necessário
+            // model.rotation.x += 0.01;
+            // model.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        };
+
+        animate();
     </script>
 </body>
 </html>
